@@ -1,0 +1,11 @@
+echo "Enter two number"
+read num1 num2
+echo "Select the following"
+#echo "1.for Addition"
+#echo "2. Subtration"
+#echo "3. Multiflication"
+#echo "4. Division"
+echo $a+$b | bc  #perform addition from bc (calculator)
+echo $a-$b | bc  #perform subtraction from bc (calculator)
+echo $a*$b | bc  #perform multiplication from bc (calculator)
+echo $a/$b | bc  #perform Division from bc (calculator)

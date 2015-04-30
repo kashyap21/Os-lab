@@ -1,0 +1,303 @@
+Question 1 
+
+ 
+The following state transition table is a simplified model of process management, with the labels representing transitions between states of READY, RUN, BLOCKED, and NONRESIDENT. Give an example of an event that can cause each of the above transitions. Draw a diagram if that helps.
+	READY	RUN	BLOCKED	NONRESIDENT
+READY	-	1	-	5
+RUN	2	-	3	-
+BLOCKED	4	-	-	6
+
+ANSWER: examples of events that can cause each of the above transitions.
+	
+1.	Ready to Run occurs only if a process is allocated the cpu by dispatcher
+2.	Run to Ready can be caused by time –quantum expiration 
+3.	Ready to nonresident occurs if memory is overcommitted and a process is temporary swapped out of memory 
+4.	Run to Blocked can occur if a process issues on I/O or other kernel request.
+5.	Blocked to Ready occurs if the awaited event completes.( May be I/0 Completion)
+6.	Blocked to Nonresident is Same as ready to Non-Resident.
+
+Question 2 
+ 	
+ 
+ Assume that at time 5 no system resources are being used except for the processor and memory. Now consider the following events: 
+At time 5: P1 executes a command to read from disk unit 3. 
+At time 15: P5’s time slice expires. 
+At time 18: P7 executes a command to write to disk unit 3. 
+At time 20: P3 executes a command to read from disk unit 2. 
+At time 24: P5 executes a command to write to disk unit 3. 
+At time 28: P5 is swapped out. 
+At time 33: An interrupt occurs from disk unit 2: P3’s read is complete. 
+At time 36: An interrupt occurs from disk unit 3: P1’s read is complete. 
+At time 38: P8 terminates. 
+At time 40: An interrupt occurs from disk unit 3: P5’s write is complete. 
+At time 44: P5 is swapped back in. 
+At time 48: An interrupt occurs from disk unit 3: P7’s write is complete. 
+For each time 22, 37, and 47, identify which state each process is in. If a process is blocked, further identify the event on which is it blocked.     
+
+Answer: 
+ 
+Time	Event
+5	P1 executes command to read from disk unit 3
+15	P5’s time slice expires
+18	P7 executes command to write to disk unit 3
+20	P3 executes command to read from disk unit 2
+
+At time 22
+	P1: blocked for I/O
+	P3: blocked for I/O
+P7: blocked for I/O
+P5: ready/running
+P8: ready/running
+Time 	Event
+24	P5 executes command to disc unit 3
+28	P5 is swapped out
+33	Interrupt occurs from disc 2: P3’s read
+36	Interrupt occurs from disc 3: P1’s read
+
+At time 37
+
+	P1: ready/running
+	P3: ready/running
+	P5: ready/running
+	P7: blocked for I/O
+P8: ready/running
+
+Time 	Event
+38	P8 terminates
+40	Interrupt from disc 3: P5’s write complete 
+44	P5 swapped back in
+48	Interrupt occurs from disc 3: P7’s write complete
+
+At time 47
+
+P1: ready/running
+	P3: ready/running
+	P5: ready suspend
+	P7: blocked for I/O
+P8: exits
+
+Question 3
+
+You have executed the following C program: 
+main () 
+{
+ int pid; 
+pid = fork (); 
+printf (“%d \n”, pid); 
+}
+What are the possible outputs, assuming the fork succeeded?
+
+Answer 
+	On success, the PID of child process is returned in parent’s thread of execution, and a ‘0’ is returned in child’s thread of execution
+
+	Output: 0			 	Or		<Child PID>
+		<Child PID>					0
+
+Question 4:
+
+List reasons why a mode switch between threads may be cheaper than a mode switch between processes. 
+
+Answer:
+	Mode switching between threads may be cheaper then a mode switch between processes
+	Switching process requires OS to process more information
+	Memory is shared by threads so there’s no need to exchange memory or data during thread creation or switching
+	Thread switching doesn’t require kernel to get involved, which save time on switching user to kernel mode.
+
+Question 5: 
+	
+List three advantages of ULTs over KLTs. 
+Answer:
+1	Thread switching doesn’t require kernel mode privileges because all the thread management data structures are within the user address space of a single process. This saves the overhead of two mode switches. (User to kernel and back to User) 
+2	Scheduling can be application specific. The scheduling algorithm can be tailored to the application without disturbing the underlying OS scheduler.
+3	ULT’s can run on any OS. No changes are required to the underlying kernel to support ULT’s.  The thread Library is a set of application level functions shared by all applications.
+
+
+Question 6. 
+
+List two disadvantages of ULTs compared to KLTs. 
+
+Answer: 
+1	In typical OS, Many system calls are blocking when a ULT executes a system call. Not only is that thread blocked, but also all of the threads within the process are blocked
+
+2	In a pure ULT strategy, a multi-threaded application cannot take advantages of multiprogramming, A kernel assigns one process to only one processor at a time. Therefore, only a single thread within a process can execute at a time.
+
+Question 7:
+	
+In the discussion of ULTs versus KLTs, it was pointed out that a disadvantage of ULTs is that when a ULT executes a system call, not only is that thread blocked, but also all of the threads within the process are blocked. Why is that so? 
+
+Answer: 
+	ULT thread structure of a process is not visible to OS/Kernel, which schedules on the basis of processes. 
+	The kernel continues to schedule the process as a unit and assign a single execution state (ready, running, blocked, etc...) to particular process.
+	Hence Once thread is blocked, the whole process is blocked and consequently all threads in the process are blocked
+
+
+Question 8
+	
+Consider an environment in which there is a one-to-one mapping between user-level threads and kernel-level threads that allows one or more threads within a process to issue blocking system calls while other threads continue to run. Explain why this model can make multithreaded programs run faster than their single-threaded counterparts on a uniprocessor computer. 
+Answer:
+	Because KLT in multi-threaded program enables atleast one thread to issue a block system call independently without influencing other thread and there by allowing other thread to un intrruptly  continue with their execution. However in single threaded counter parts of multi-threaded program, machine generally spends a significant amount of time in waiting for I/O operation to be complete.
+
+Question 9
+If a process exits and there are still threads of that process running, will they continue to run? 
+
+Answer:
+	No – “Because all threads in a process share the same address space, all threads are suspended at the same time, similarity termination of a process terminates all threads with that process”
+
+Question 10
+What is the distinction between competing processes and cooperating processes? 
+Answer:
+	Competing Process – Compete for resources.
+Eg: Two independent applications may both want to access same disk or file or printer. OS must regulate these acess.
+
+Co-Operating Process – share resources
+May or may not be aware of each other.
+They may also be aware of each other by process id.
+
+Question 11: 
+	What is the difference between strong and weak semaphores? 
+Answer:
+	Strong semaphore specifies in which order processes are removed from the waiting queue. (Such as FIFO)
+	Weak semaphore doesn’t specify this.
+
+Question 12:
+	What is a monitor? 
+Answer:
+	Monitor is a programming language construct that provides equivalent functionality to that of semaphores and that is easier to control.
+Question 13:
+	What is the distinction between blocking and nonblocking with respect to messages?
+ Answer:
+	Blocking send, blocking receive : both sender and receiver are blocked until the message is delivered. Tight synchronization between processes
+	Non-Blocking send, blocking receive: although the sender may continue on, the receiver is blocked until the requested message arrives. It allows a process to send one or more messages to verify of destination as quickly as possible. 
+	
+	Useful Combination:
+	Nonblocking send, Nonblocking receive: neither party is require to wait.
+
+Question 14:
+Is busy waiting always less efficient (in terms of using processor time) than a blocking wait? Explain. 
+Answer:
+	Busy waiting can be more efficient if the expected wait time is shorter than the time it takes to pre-empt and re-schedule a thread. This is common on multiprocessor.
+
+Question 15: 
+
+Consider the following definition of semaphores: 
+void semWait(s) 
+{ 
+if (s.count > 0) { 
+s.count--; 
+} 
+else { 
+place this process in s.queue; 
+block; 
+} 
+} 
+void semSignal (s) 
+{ 
+if (there is at least one process blocked on 
+semaphore s) { 
+remove a process P from s.queue; 
+place process P on ready list; 
+} 
+else 
+s.count++; 
+} 
+Compare this set of definitions with one given below. Note one difference: With the preceding definition, a semaphore can never take on a negative value. Is there any difference in the effect of the two sets of definitions when used in programs? 
+That is, could you substitute one set for the other without altering the meaning of the program? 
+struct semaphore { 
+int count; 
+queueType queue; 
+}; 
+void semWait(semaphore s) 
+{ 
+s.count--; 
+if (s.count < 0) { 
+/* place this process in s.queue */; 
+/* block this process */; 
+} 
+} 
+void semSignal(semaphore s) 
+{ 
+s.count++; 
+if (s.count<= 0) { 
+/* remove a process P from s.queue */; 
+/* place process P on ready list */; 
+} 
+}
+
+Answer: 
+
+1	2
+Void semwait(s)
+{
+ if(s.count >0) {
+	s.count -- ;}
+else {
+place this process is s.queue;
+block;}
+void semsignal (s) {
+if(at least one process blocked on semaphore s) {
+remove process from s.queue;
+place it on ready; }
+else 
+s.count ++;
+}
+	Struct semaphore {
+Int count;
+Queue Type queue; } ;
+Void semwait ( semaphore s )  {
+s.count -- ;
+if(s.count < 0) { …. } 
+}
+Void semsignal (semaphore s)
+{   s.count ++;
+   If(s.count < = 0 )
+{ … }
+}
+
+
+
+
+They are equivalent in the perspective of functionality 
+Here s.count stands for the number of process which can run simultaneously. When it turns to 0, it means every upcoming process which invoked semwait should be blocked. 
+The whole difference existed in sem signal primitive, the semaphore determines is to unblock process depend on process queue instead of s.count. When all blocked processes are released, the s.count may start to increase semsignal was invoked.
+
+Question 16:
+
+This problem demonstrates the use of semaphores to coordinate three types of processes. Santa Claus sleeps in his shop at the North Pole and can only be wakened by either (1) all nine reindeer being back from their vacation in the South Pacific, or (2) some of the elves having difficulties making toys; to allow Santa to get some sleep, the elves can only wake him when three of them have problems. When three elves are having their problems solved, any other elves wishing to visit Santa must wait for those elves to return. If Santa wakes up to find three elves waiting at his shop’s door, along with the last reindeer having come back from the tropics, Santa has decided that the elves can wait until after Christmas, because it is more important to get his sleigh ready. (It is assumed that the reindeer do not want to leave the tropics, and therefore they stay there until the last possible moment.) The last reindeer to arrive must get Santa while the others wait in a warming hut before being harnessed to the sleigh. Solve this problem using semaphores. 
+Answer:
+	Santa problem 
+	Loop
+	{	
+		SemWait(santa);
+		If  All_reindeer_ready
+		{
+		For all_waiting_reindeer{
+		semSignal (reindeer_wait);
+		}
+		For all_reindeer{
+		Semsignal(harness);}
+		Deliver Toys;
+	For all_recivedeer
+	{ Semsignal(unharness);}
+}
+Else    //all_elves_ready
+{
+For all_waiting_elves
+{ semSignal(elf_wait);}
+For all_elves
+{ semsignal (invite_in) ; }
+Consult;
+For all_elves
+{
+semSignal (semout);
+}
+Loop
+If is_lost_reindeer{
+semSignal(santa);}
+
+else{ semWait (reindeer.wait) ; }
+
+semWait (harness) ;
+Deliver Toys ;
+SemWait (Unharness);
+End loop
+} 
